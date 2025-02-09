@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func setupTestNode(t *testing.T) *Node {
+func setupTestNode() *Node {
 	cfg := &config.ServerConfig{
 		NodeID:     "test-node",
 		Port:       8081,
@@ -20,8 +20,9 @@ func setupTestNode(t *testing.T) *Node {
 	return NewNode(cfg.NodeID, cfg.PeerNodes, cfg.ShardCount, cfg)
 }
 
-func TestNode_HandlePut(t *testing.T) {
-	node := setupTestNode(t)
+func TestNodeHandlePut(t *testing.T) {
+
+	node := setupTestNode()
 
 	payload := `{"key":"test-key","value":"test-value"}`
 	req := httptest.NewRequest("POST", "/put", strings.NewReader(payload))
@@ -34,8 +35,8 @@ func TestNode_HandlePut(t *testing.T) {
 	}
 }
 
-func TestNode_HandleGet(t *testing.T) {
-	node := setupTestNode(t)
+func TestNodeHandleGet(t *testing.T) {
+	node := setupTestNode()
 
 	// First put some data
 	putPayload := `{"key":"test-key","value":"test-value"}`

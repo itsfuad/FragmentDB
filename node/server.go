@@ -11,6 +11,10 @@ import (
 	"sync"
 )
 
+const (
+	METHOD_NOT_ALLOWED = "Method not allowed"
+)
+
 type Node struct {
 	ID       string
 	shardMgr *shard.ShardManager
@@ -41,7 +45,7 @@ func (n *Node) Start(port int) error {
 
 func (n *Node) handleGet(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, METHOD_NOT_ALLOWED, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -69,21 +73,23 @@ func (n *Node) handleGet(w http.ResponseWriter, r *http.Request) {
 	n.Mu.RUnlock()
 
 	w.Header().Set("Content-Type", "application/json")
+	// Return result as a string instead of raw bytes.
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"key":   key,
-		"value": result,
+		"value": string(result),
 	})
 }
 
 func (n *Node) handlePut(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, METHOD_NOT_ALLOWED, http.StatusMethodNotAllowed)
 		return
 	}
 
+	// Change the Value field to string so JSON sends a normal string.
 	var data struct {
 		Key   string `json:"key"`
-		Value []byte `json:"value"`
+		Value string `json:"value"`
 	}
 
 	body, err := io.ReadAll(r.Body)
@@ -98,7 +104,9 @@ func (n *Node) handlePut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	shards := n.shardMgr.SplitData(data.Value)
+	// Convert value string to []byte
+	valueBytes := []byte(data.Value)
+	shards := n.shardMgr.SplitData(valueBytes)
 	n.Mu.Lock()
 	for shardID, shardData := range shards {
 		encrypted, err := n.shardMgr.EncryptShard(shardData, n.config.SecretKey)
@@ -116,7 +124,7 @@ func (n *Node) handlePut(w http.ResponseWriter, r *http.Request) {
 
 func (n *Node) handleSync(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, METHOD_NOT_ALLOWED, http.StatusMethodNotAllowed)
 		return
 	}
 

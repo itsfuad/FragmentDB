@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestShardManager_SplitData(t *testing.T) {
+func TestShardManagerSplitData(t *testing.T) {
 	sm := NewShardManager(3, "test-node")
 	testData := []byte("Hello, World!")
 
@@ -26,7 +26,7 @@ func TestShardManager_SplitData(t *testing.T) {
 	}
 }
 
-func TestShardManager_Encryption(t *testing.T) {
+func TestShardManagerEncryption(t *testing.T) {
 	sm := NewShardManager(3, "test-node")
 	testData := []byte("Secret message")
 	key := "12345678901234567890123456789012" // 32-byte key

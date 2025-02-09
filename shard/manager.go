@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"io"
 )
 
@@ -74,7 +75,7 @@ func (sm *ShardManager) DecryptShard(data []byte, key string) ([]byte, error) {
 
 	nonceSize := gcm.NonceSize()
 	if len(data) < nonceSize {
-		return nil, err
+		return nil, fmt.Errorf("ciphertext too short")
 	}
 
 	nonce, ciphertext := data[:nonceSize], data[nonceSize:]
