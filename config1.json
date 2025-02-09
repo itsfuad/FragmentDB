@@ -1,0 +1,8 @@
+{
+    "node_id": "node1",
+    "port": 8081,
+    "peer_nodes": ["localhost:8082", "localhost:8083"],
+    "data_path": "./data1",
+    "secret_key": "your-32-byte-secret-key-here-12345",
+    "shard_count": 3
+}
