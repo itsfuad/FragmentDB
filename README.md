@@ -100,4 +100,4 @@ To host FragmentDB in production, consider the following:
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MOZILLA PUBLIC LICENSE 2.0 - see the [LICENSE](LICENSE) file for details.
