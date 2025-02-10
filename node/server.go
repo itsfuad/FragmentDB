@@ -1,6 +1,7 @@
 package node
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"fragmentdb/config"
@@ -22,6 +23,7 @@ type Node struct {
 	Peers    []string
 	Mu       sync.RWMutex
 	config   *config.ServerConfig
+	srv      *http.Server
 }
 
 func NewNode(id string, peers []string, shardCount int, cfg *config.ServerConfig) *Node {
@@ -34,13 +36,26 @@ func NewNode(id string, peers []string, shardCount int, cfg *config.ServerConfig
 	}
 }
 
+// Start creates and starts the HTTP server.
 func (n *Node) Start(port int) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/put", n.handlePut)
-	mux.HandleFunc("/get/", n.handleGet) // Note the trailing slash
+	mux.HandleFunc("/get/", n.handleGet)
 	mux.HandleFunc("/sync", n.handleSync)
 	// Add other CRUD handlers
-	return http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+	n.srv = &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
+	return n.srv.ListenAndServe()
+}
+
+// Stop gracefully shuts down the HTTP server.
+func (n *Node) Stop(ctx context.Context) error {
+	if n.srv != nil {
+		return n.srv.Shutdown(ctx)
+	}
+	return nil
 }
 
 func (n *Node) handleGet(w http.ResponseWriter, r *http.Request) {

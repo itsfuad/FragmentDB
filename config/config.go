@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
@@ -27,6 +28,10 @@ func LoadConfig(path string) (*ServerConfig, error) {
 
 	if config.ShardCount < 3 {
 		config.ShardCount = 3 // Minimum shard count
+	}
+
+	if config.SecretKey == "" {
+		return nil, fmt.Errorf("secret_key cannot be empty")
 	}
 
 	return &config, nil

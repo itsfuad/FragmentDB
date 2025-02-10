@@ -1,6 +1,7 @@
 package recovery
 
 import (
+	"context"
 	"encoding/json"
 	"fragmentdb/node"
 	"net/http"
@@ -21,11 +22,18 @@ func NewSyncManager(node *node.Node) *SyncManager {
 	}
 }
 
-func (sm *SyncManager) StartSync() {
+// StartSync now accepts a context and stops when canceled.
+func (sm *SyncManager) StartSync(ctx context.Context) {
 	go func() {
+		ticker := time.NewTicker(sm.interval)
+		defer ticker.Stop()
 		for {
-			sm.synchronizeWithPeers()
-			time.Sleep(sm.interval)
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				sm.synchronizeWithPeers()
+			}
 		}
 	}()
 }

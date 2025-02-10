@@ -1,14 +1,13 @@
 # FragmentDB
 
-FragmentDB is a distributed database written in Go that shards, encrypts, replicates, and synchronizes data across multiple nodes. Each node stores a portion of the encrypted data, making it secure and resilient to failures.
+FragmentDB is a distributed sharded database implemented in Golang.
 
 ## Features
 
-- **Data Sharding**: Splits data into shards for distributed storage.
-- **Encryption**: Uses AES-GCM for secure shard encryption.
-- **Replication & Synchronization**: Periodically synchronizes shards with peer nodes.
-- **REST API**: Provides CRUD endpoints for data management.
-- **Fault Tolerance**: Recovers data even when one node fails.
+- Distributed nodes with HTTP REST API.
+- Data sharding with encryption for security.
+- Recovery mechanism that periodically synchronizes data between nodes.
+- Graceful shutdown using context and OS signal handling.
 
 ## Getting Started
 
@@ -61,6 +60,12 @@ FragmentDB is a distributed database written in Go that shards, encrypts, replic
 
 - **Sync Data**: Peer nodes synchronize automatically via the `/sync` endpoint.
 
+## API Endpoints
+
+- **/put**: POST JSON payload to store data (e.g., `{"key": "your-key", "value": "your-value"}`).
+- **/get/{key}**: GET to retrieve and reconstruct stored data.
+- **/sync**: GET to expose current node data for recovery synchronization.
+
 ## Contributing
 
 Contributions are welcome! Please follow these guidelines:
@@ -87,6 +92,18 @@ This project enforces code formatting and verified signatures:
 - **Verified Signature:** The repository requires signed commits.
 
 Make sure both requirements are met before pushing your changes.
+
+## Testing
+
+Run tests using:
+   ```bash
+   go test ./...
+   ```
+
+## Additional Notes
+
+- Recovery sync runs periodically based on a 5-minute interval.
+- Nodes shutdown gracefully when receiving SIGINT or SIGTERM.
 
 ## Hosting
 
